@@ -2,11 +2,34 @@ import React from 'react';
 import MessageForm from './MessageForm';
 import MyMessage from './MyMessage';
 import OthersMessage from './OthersMessage';
+import './Logout.css';
 
 const ChatFeed = (props)=>{
     
    const {chats, activeChat, userName, messages} =props;
    const chat = chats && chats[activeChat];//quite tricky way .returns second value if first value is truthy
+
+
+   const renderReadReceipts =(message, isMyMessage)=>{
+          return chat.people.map((person,index)=>person.last_read ===message.id && (
+
+            <div 
+              key={`read_${index}`}
+              className ='read-receipt'
+              style ={{float : isMyMessage? 'right' : 'left', backgroundImage : `url(${person?.person?.avatar})`}}
+            
+            
+            />
+          ))
+
+   }
+
+   const Logout=(e)=>{
+     localStorage.setItem('username','');
+     localStorage.setItem('password','');
+     window.location.reload();
+
+   }
 
    const renderMessages = ()=>{
 
@@ -19,7 +42,7 @@ const ChatFeed = (props)=>{
         const isMyMessage = userName === message.sender.username;
 
         return <div key={`msg_${index}`}  style ={{width :'100%'}}>
-
+          
                   <div className='message-block'>
                     {
                         isMyMessage? <MyMessage message={message} /> : <OthersMessage message={message} lastMessage = {messages[lastMessageKey]}/>
@@ -27,7 +50,7 @@ const ChatFeed = (props)=>{
                   </div>
                   <div className = 'read-receipts' style={{marginRight: isMyMessage? '18px' : '0px', marginLeft:isMyMessage? '0px' : '68px' }}>
                     
-                        read receipts
+                        {renderReadReceipts(message,isMyMessage)}
                   </div>
                    
 
@@ -42,6 +65,8 @@ const ChatFeed = (props)=>{
 
    if(!chat) return '...Loading';
     return (<div className='chat-feed'>
+               <button className='logout-button'  onClick={Logout}>Log Out</button>
+               
                <div className='chat-title-container'>
                   <div className='chat-title'>
                       {chat?.title /*new trick to check title*/}
